@@ -1,71 +1,48 @@
-1)
-CREATE OR REPLACE FUNCTION calcular_bonus_trigger()
+CREATE OR REPLACE FUNCTION atualiza_data_demissao()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO contra_cheque (matricula, bonus)
-  VALUES (NEW.matricula, calcular_bonus(NEW.matricula));
-  RETURN NEW;
+    UPDATE funcionario
+    SET data_demissao = CURRENT_DATE
+    WHERE matricula = OLD.matricula;
+    RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER calcular_bonus_trigger_after_insert
-AFTER INSERT ON funcionario
+CREATE TRIGGER trg_atualiza_data_demissao
+BEFORE DELETE ON funcionario
 FOR EACH ROW
-EXECUTE FUNCTION calcular_bonus_trigger();
+EXECUTE FUNCTION atualiza_data_demissao();
 
-2)
-CREATE OR REPLACE FUNCTION calcular_salario_total_trigger()
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION verifica_funcionario_existe()
 RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE contra_cheque
-  SET salario_total = calcular_salario_total(NEW.matricula)
-  WHERE matricula = NEW.matricula;
-  RETURN NEW;
+    IF NOT EXISTS (SELECT 1 FROM funcionario WHERE matricula = NEW.matricula) THEN
+        RAISE EXCEPTION 'Funcionário com matrícula % não existe', NEW.matricula;
+    END IF;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER calcular_salario_total_trigger_after_insert
-AFTER INSERT ON funcionario
+CREATE TRIGGER trg_verifica_funcionario_existe
+BEFORE INSERT ON registro_horas
 FOR EACH ROW
-EXECUTE FUNCTION calcular_salario_total_trigger();
+EXECUTE FUNCTION verifica_funcionario_existe();
 
-CREATE TRIGGER calcular_salario_total_trigger_after_update
-AFTER UPDATE ON funcionario
-FOR EACH ROW
-EXECUTE FUNCTION calcular_salario_total_trigger();
-
-3)
-CREATE OR REPLACE FUNCTION calcular_tempo_servico_trigger()
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------CREATE OR REPLACE FUNCTION verifica_valor_beneficio()
 RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE funcionario
-  SET tempo_servico = calcular_tempo_servico(NEW.matricula)
-  WHERE matricula = NEW.matricula;
-  RETURN NEW;
+    IF NEW.valor < 0 THEN
+        RAISE EXCEPTION 'O valor do benefício não pode ser negativo';
+    END IF;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER calcular_tempo_servico_trigger_after_insert
-AFTER INSERT ON funcionario
+CREATE TRIGGER trg_verifica_valor_beneficio
+BEFORE INSERT OR UPDATE ON beneficio
 FOR EACH ROW
-EXECUTE FUNCTION calcular_tempo_servico_trigger();
+EXECUTE FUNCTION verifica_valor_beneficio();
 
-CREATE TRIGGER calcular_tempo_servico_trigger_after_update
-AFTER UPDATE ON funcionario
-FOR EACH ROW
-EXECUTE FUNCTION calcular_tempo_servico_trigger();
 
-4)
-CREATE OR REPLACE FUNCTION calcular_horas_extras_trigger()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO registro_horas_extras (matricula, horas_extras)
-  VALUES (NEW.matricula, calcular_horas_extras(NEW.matricula));
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER calcular_horas_extras_trigger_after_insert
-AFTER INSERT ON registro_horas
-FOR EACH ROW
-EXECUTE FUNCTION calcular_horas_extras_trigger();
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
