@@ -12,7 +12,7 @@ FROM funcionarios
 
 INNER JOIN empresa on (empresa.id_empresa = funcionario.id_empresa)
 INNER JOIN cargo on (cargo.id_cargo = funcionario.id_cargo )
-INNER JOIN usuario on (usuario.id_ususario = funcionario.id_usuario) 
+INNER JOIN usuario on (usuario.id_ususario = funcionario.id_usuario);
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE VIEW informacao_usuario AS
 SELECT
@@ -28,7 +28,7 @@ SELECT
 
 FROM usuario 
 
-INNER JOIN endereco on (endereco.id_endereco = usuario.id_endereco)
+INNER JOIN endereco on (endereco.id_endereco = usuario.id_endereco);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
