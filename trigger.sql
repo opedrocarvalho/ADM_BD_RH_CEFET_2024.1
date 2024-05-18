@@ -29,7 +29,8 @@ BEFORE INSERT ON registro_horas
 FOR EACH ROW
 EXECUTE FUNCTION verifica_funcionario_existe();
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------CREATE OR REPLACE FUNCTION verifica_valor_beneficio()
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION verifica_valor_beneficio()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.valor < 0 THEN
