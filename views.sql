@@ -43,7 +43,7 @@ SELECT
   razao_desconto varchar
   data_pagamento date 
 
-FROM contra_cheque
+FROM contra_cheque;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -55,4 +55,4 @@ SELECT
   data_entrada date
   data_retorno date
 
-FROM ferias
+FROM ferias;
